@@ -1,9 +1,9 @@
 package com.library.Library.services.Impl;
 
 import com.library.Library.persistence.models.Author;
-import com.library.Library.persistence.models.Book;
-import com.library.Library.persistence.repositories.IAuthorRepository;
+import com.library.Library.persistence.repositories.AuthorRepository;
 import com.library.Library.services.IAuthorService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class AuthorServiceImpl implements IAuthorService {
 
     @Autowired
-    private IAuthorRepository authorRepository;
+    private AuthorRepository authorRepository;
 
     @Override
     public Optional<Author> findById(Long id) {
@@ -29,41 +29,25 @@ public class AuthorServiceImpl implements IAuthorService {
     @Override
     public void add(Author author) {
         // TODO Auto-generated method stub
-        authorRepository.add(author);
+        authorRepository.save(author);
     }
 
     @Override
     public List<Author> getAllAuthors() {
         // TODO Auto-generated method stub
-        return authorRepository.getAllAuthors();
+        return authorRepository.findAll();
     }
 
     @Override
-    public void deleteAuthor(Long id) { //Se borraran en cascada los libros dentro de la editorial
-        // TODO Auto-generated method stub
-        authorRepository.deleteAuthor(id);
-    }
-/*
-    @Override
-    public void addBook(Long id,Book book) {
-        bookService.add(book);
-        authorRepository.addBook(id, book);
-    }
+    public void deleteAuthor(Long id) {
+        Optional<Author> authorOptional = authorRepository.findById(id);
 
-    @Override
-    public String getBooks(Long id) {
-        return authorRepository.getBooks(id);
+        if (authorOptional.isPresent()) {
+            Author author = authorOptional.get();
+            authorRepository.delete(author);
+        } else {
+            // Manejar el caso cuando el autor no existe
+            throw new EntityNotFoundException("Author with id " + id + " not found");
+        }
     }
-
- */
-
-    @Autowired
-    public void setEditorialRepository(IAuthorRepository editorialRepository) {
-        this.authorRepository = editorialRepository;
-    }
-
-    public AuthorServiceImpl(IAuthorRepository editorialRepository) {
-        this.authorRepository = editorialRepository;
-    }
-
 }

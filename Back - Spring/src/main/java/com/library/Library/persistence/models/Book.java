@@ -1,16 +1,20 @@
 package com.library.Library.persistence.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Entity
 public class Book {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
     private Author author;
 
     public Book(Book book) {
@@ -19,7 +23,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return ("id: " + this.id + ", title: " + this.title + ", author: ");
+        return ("id: " + this.id + ", title: " + this.title + ", author: " + this.author.getName());
     }
 
 }
