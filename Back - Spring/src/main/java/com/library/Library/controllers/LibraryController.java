@@ -2,6 +2,7 @@ package com.library.Library.controllers;
 
 import com.library.Library.persistence.models.Author;
 import com.library.Library.persistence.models.Book;
+import com.library.Library.persistence.models.dto.BookDTO;
 import com.library.Library.services.Impl.AuthorServiceImpl;
 import com.library.Library.services.Impl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/")
@@ -23,33 +27,39 @@ public class LibraryController {
     private AuthorServiceImpl authorService;
 
     @GetMapping(path = "books")
-    public ArrayList<Book> getAllBooks(){
-        return (ArrayList<Book>) bookService.getAllBooks();
+    public List<BookDTO> getAllBooks() {
+        List<Book> books = bookService.getAllBooks();
+        return books.stream()
+                .map(book -> new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor())))
+                .collect(Collectors.toList());
     }
 
     @PostMapping(path = "books")
-    public String createBook( @RequestBody Book newBook){
-
-        if(newBook.getAuthor() != null){
-            Optional<Author> auxAuthor = authorService.findById(newBook.getAuthor().getId());
+    public String createBook(@RequestBody BookDTO newBookDTO){
+        if(newBookDTO.getAuthor() != null){
+            Optional<Author> auxAuthor = authorService.findById(newBookDTO.getAuthor().getId());
             if(auxAuthor.isPresent()) {
+                Book newBook = new Book();
+                newBook.setId(newBookDTO.getId());
+                newBook.setTitle(newBookDTO.getTitle());
                 newBook.setAuthor(auxAuthor.get());
+                newBook.setPublicationDate(new Date());
+
                 bookService.save(newBook);
                 return "Book created";
             }
         }
 
-
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Author does not exist"
         );
-
     }
 
     @GetMapping(path = "books/{id}")
-    public Book getBookById(@PathVariable("id") Long id){
+    public BookDTO getBookById(@PathVariable("id") Long id){
         if(bookService.findById(id).isPresent()) {
-            return bookService.findById(id).get();
+            Book book = bookService.findById(id).get();
+            return new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor()));
         }
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "entity not found"
@@ -57,13 +67,13 @@ public class LibraryController {
     }
 
     @PutMapping(path = "books/{id}")
-    public String updateBookById(@RequestBody Book newBook, @PathVariable("id") Long id){
-        if(newBook.getAuthor() != null) {
-            Optional<Author> auxAuthor = authorService.findById(newBook.getAuthor().getId());
+    public String updateBookById(@RequestBody BookDTO newBookDTO, @PathVariable("id") Long id){
+        if(newBookDTO.getAuthor() != null) {
+            Optional<Author> auxAuthor = authorService.findById(newBookDTO.getAuthor().getId());
             if (bookService.findById(id).isPresent() && auxAuthor.isPresent()) {
                 Book book = bookService.findById(id).get();
                 book.setAuthor(auxAuthor.get());
-                book.setTitle(newBook.getTitle());
+                book.setTitle(newBookDTO.getTitle());
 
                 bookService.save(book);
 
@@ -76,8 +86,8 @@ public class LibraryController {
     }
 
     @DeleteMapping(path = "books/{id}")
-    public String deleteBookById(@PathVariable("id") Long id){
-        if(bookService.findById(id).isPresent()) {
+    public String deleteBookById(@PathVariable("id") Long id) {
+        if (bookService.findById(id).isPresent()) {
             bookService.deleteBook(id);
             return "Book deleted";
         }
@@ -126,7 +136,16 @@ public class LibraryController {
     @DeleteMapping(path = "authors/{id}")
     public String deleteAuthorById(@PathVariable("id") Long id){
         if(authorService.findById(id).isPresent()) {
-            authorService.deleteAuthor(id);
+            List<Book> authorBooks = bookService.getAuthorBooks(id);
+            if (!authorBooks.isEmpty()){
+                for (Book b: authorBooks) {
+                    bookService.deleteBook(b.getId());
+                }
+                authorService.deleteAuthor(id);
+            }else{
+                authorService.deleteAuthor(id);
+            }
+
             return "Author deleted";
         }
         throw new ResponseStatusException(
@@ -135,7 +154,10 @@ public class LibraryController {
     }
 
     @GetMapping(path = "authors/{id}/books")
-    public ArrayList<Book> getAuthorBooks(@PathVariable("id") Long id){
-        return (ArrayList<Book>) bookService.getAuthorBooks(id);
+    public List<BookDTO> getAuthorBooks(@PathVariable("id") Long id) {
+        List<Book> authorBooks = bookService.getAuthorBooks(id);
+        return authorBooks.stream()
+                .map(book -> new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor())))
+                .collect(Collectors.toList());
     }
 }

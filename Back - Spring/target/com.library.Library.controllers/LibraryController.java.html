@@ -2,6 +2,7 @@
 
 import com.library.Library.persistence.models.Author;
 import com.library.Library.persistence.models.Book;
+import com.library.Library.persistence.models.dto.BookDTO;
 import com.library.Library.services.Impl.AuthorServiceImpl;
 import com.library.Library.services.Impl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(&quot;/&quot;)
-<span class="fc" id="L17">public class LibraryController {</span>
+<span class="fc" id="L21">public class LibraryController {</span>
 
     @Autowired
     private BookServiceImpl bookService;
@@ -23,65 +27,71 @@ import java.util.Optional;
     private AuthorServiceImpl authorService;
 
     @GetMapping(path = &quot;books&quot;)
-    public ArrayList&lt;Book&gt; getAllBooks(){
-<span class="nc" id="L27">        return (ArrayList&lt;Book&gt;) bookService.getAllBooks();</span>
+    public List&lt;BookDTO&gt; getAllBooks() {
+<span class="fc" id="L31">        List&lt;Book&gt; books = bookService.getAllBooks();</span>
+<span class="fc" id="L32">        return books.stream()</span>
+<span class="pc" id="L33">                .map(book -&gt; new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor())))</span>
+<span class="fc" id="L34">                .collect(Collectors.toList());</span>
     }
 
     @PostMapping(path = &quot;books&quot;)
-    public String createBook( @RequestBody Book newBook){
+    public String createBook(@RequestBody BookDTO newBookDTO){
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if(newBookDTO.getAuthor() != null){</span>
+<span class="fc" id="L40">            Optional&lt;Author&gt; auxAuthor = authorService.findById(newBookDTO.getAuthor().getId());</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">            if(auxAuthor.isPresent()) {</span>
+<span class="fc" id="L42">                Book newBook = new Book();</span>
+<span class="fc" id="L43">                newBook.setId(newBookDTO.getId());</span>
+<span class="fc" id="L44">                newBook.setTitle(newBookDTO.getTitle());</span>
+<span class="fc" id="L45">                newBook.setAuthor(auxAuthor.get());</span>
+<span class="fc" id="L46">                newBook.setPublicationDate(new Date());</span>
 
-<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        if(newBook.getAuthor() != null){</span>
-<span class="fc" id="L34">            Optional&lt;Author&gt; auxAuthor = authorService.findById(newBook.getAuthor().getId());</span>
-<span class="fc bfc" id="L35" title="All 2 branches covered.">            if(auxAuthor.isPresent()) {</span>
-<span class="fc" id="L36">                newBook.setAuthor(auxAuthor.get());</span>
-<span class="fc" id="L37">                bookService.save(newBook);</span>
-<span class="fc" id="L38">                return &quot;Book created&quot;;</span>
+<span class="fc" id="L48">                bookService.save(newBook);</span>
+<span class="fc" id="L49">                return &quot;Book created&quot;;</span>
             }
         }
 
-
-<span class="fc" id="L43">        throw new ResponseStatusException(</span>
+<span class="fc" id="L53">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;Author does not exist&quot;
         );
-
     }
 
     @GetMapping(path = &quot;books/{id}&quot;)
-    public Book getBookById(@PathVariable(&quot;id&quot;) Long id){
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if(bookService.findById(id).isPresent()) {</span>
-<span class="nc" id="L52">            return bookService.findById(id).get();</span>
+    public BookDTO getBookById(@PathVariable(&quot;id&quot;) Long id){
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if(bookService.findById(id).isPresent()) {</span>
+<span class="fc" id="L61">            Book book = bookService.findById(id).get();</span>
+<span class="fc" id="L62">            return new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor()));</span>
         }
-<span class="nc" id="L54">        throw new ResponseStatusException(</span>
+<span class="fc" id="L64">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;entity not found&quot;
         );
     }
 
     @PutMapping(path = &quot;books/{id}&quot;)
-    public String updateBookById(@RequestBody Book newBook, @PathVariable(&quot;id&quot;) Long id){
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if(newBook.getAuthor() != null) {</span>
-<span class="nc" id="L62">            Optional&lt;Author&gt; auxAuthor = authorService.findById(newBook.getAuthor().getId());</span>
-<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (bookService.findById(id).isPresent() &amp;&amp; auxAuthor.isPresent()) {</span>
-<span class="nc" id="L64">                Book book = bookService.findById(id).get();</span>
-<span class="nc" id="L65">                book.setAuthor(auxAuthor.get());</span>
-<span class="nc" id="L66">                book.setTitle(newBook.getTitle());</span>
+    public String updateBookById(@RequestBody BookDTO newBookDTO, @PathVariable(&quot;id&quot;) Long id){
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if(newBookDTO.getAuthor() != null) {</span>
+<span class="fc" id="L72">            Optional&lt;Author&gt; auxAuthor = authorService.findById(newBookDTO.getAuthor().getId());</span>
+<span class="pc bpc" id="L73" title="1 of 4 branches missed.">            if (bookService.findById(id).isPresent() &amp;&amp; auxAuthor.isPresent()) {</span>
+<span class="fc" id="L74">                Book book = bookService.findById(id).get();</span>
+<span class="fc" id="L75">                book.setAuthor(auxAuthor.get());</span>
+<span class="fc" id="L76">                book.setTitle(newBookDTO.getTitle());</span>
 
-<span class="nc" id="L68">                bookService.save(book);</span>
+<span class="fc" id="L78">                bookService.save(book);</span>
 
-<span class="nc" id="L70">                return &quot;Book modified&quot;;</span>
+<span class="fc" id="L80">                return &quot;Book modified&quot;;</span>
             }
         }
-<span class="nc" id="L73">        throw new ResponseStatusException(</span>
+<span class="fc" id="L83">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;entity not found&quot;
         );
     }
 
     @DeleteMapping(path = &quot;books/{id}&quot;)
-    public String deleteBookById(@PathVariable(&quot;id&quot;) Long id){
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        if(bookService.findById(id).isPresent()) {</span>
-<span class="nc" id="L81">            bookService.deleteBook(id);</span>
-<span class="nc" id="L82">            return &quot;Book deleted&quot;;</span>
+    public String deleteBookById(@PathVariable(&quot;id&quot;) Long id) {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (bookService.findById(id).isPresent()) {</span>
+<span class="fc" id="L91">            bookService.deleteBook(id);</span>
+<span class="fc" id="L92">            return &quot;Book deleted&quot;;</span>
         }
-<span class="nc" id="L84">        throw new ResponseStatusException(</span>
+<span class="fc" id="L94">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;entity not found&quot;
         );
     }
@@ -89,54 +99,66 @@ import java.util.Optional;
     //--------------Author methods ----------------
     @GetMapping(path = &quot;authors&quot;)
     public ArrayList&lt;Author&gt; getAllAuthors(){
-<span class="nc" id="L92">        return (ArrayList&lt;Author&gt;) authorService.getAllAuthors();</span>
+<span class="fc" id="L102">        return (ArrayList&lt;Author&gt;) authorService.getAllAuthors();</span>
     }
 
     @PostMapping(path = &quot;authors&quot;)
     public String createAuthor( @RequestBody Author newAuthor){
-<span class="nc" id="L97">        authorService.save(newAuthor);</span>
-<span class="nc" id="L98">        return &quot;Author created&quot;;</span>
+<span class="fc" id="L107">        authorService.save(newAuthor);</span>
+<span class="fc" id="L108">        return &quot;Author created&quot;;</span>
     }
 
     @GetMapping(path = &quot;authors/{id}&quot;)
     public Author getAuthorById(@PathVariable(&quot;id&quot;) Long id){
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if(authorService.findById(id).isPresent()) {</span>
-<span class="nc" id="L104">            return authorService.findById(id).get();</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if(authorService.findById(id).isPresent()) {</span>
+<span class="fc" id="L114">            return authorService.findById(id).get();</span>
         }
-<span class="nc" id="L106">        throw new ResponseStatusException(</span>
+<span class="fc" id="L116">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;entity not found&quot;
         );
     }
 
     @PutMapping(path = &quot;authors/{id}&quot;)
     public String updateAuthorById(@RequestBody Author newAuthor, @PathVariable(&quot;id&quot;) Long id){
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if(authorService.findById(id).isPresent()) {</span>
-<span class="nc" id="L114">            Author author = authorService.findById(id).get();</span>
-<span class="nc" id="L115">            author.setName(newAuthor.getName());</span>
-<span class="nc" id="L116">            author.setNationality(newAuthor.getNationality());</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if(authorService.findById(id).isPresent()) {</span>
+<span class="fc" id="L124">            Author author = authorService.findById(id).get();</span>
+<span class="fc" id="L125">            author.setName(newAuthor.getName());</span>
+<span class="fc" id="L126">            author.setNationality(newAuthor.getNationality());</span>
 
-<span class="nc" id="L118">            this.authorService.save(author);</span>
-<span class="nc" id="L119">            return &quot;Author modified&quot;;</span>
+<span class="fc" id="L128">            this.authorService.save(author);</span>
+<span class="fc" id="L129">            return &quot;Author modified&quot;;</span>
         }
-<span class="nc" id="L121">        throw new ResponseStatusException(</span>
+<span class="fc" id="L131">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;entity not found&quot;
         );
     }
 
     @DeleteMapping(path = &quot;authors/{id}&quot;)
     public String deleteAuthorById(@PathVariable(&quot;id&quot;) Long id){
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        if(authorService.findById(id).isPresent()) {</span>
-<span class="nc" id="L129">            authorService.deleteAuthor(id);</span>
-<span class="nc" id="L130">            return &quot;Author deleted&quot;;</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if(authorService.findById(id).isPresent()) {</span>
+<span class="fc" id="L139">            List&lt;Book&gt; authorBooks = bookService.getAuthorBooks(id);</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (!authorBooks.isEmpty()){</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                for (Book b: authorBooks) {</span>
+<span class="nc" id="L142">                    bookService.deleteBook(b.getId());</span>
+<span class="nc" id="L143">                }</span>
+<span class="nc" id="L144">                authorService.deleteAuthor(id);</span>
+            }else{
+<span class="fc" id="L146">                authorService.deleteAuthor(id);</span>
+            }
+
+<span class="fc" id="L149">            return &quot;Author deleted&quot;;</span>
         }
-<span class="nc" id="L132">        throw new ResponseStatusException(</span>
+<span class="fc" id="L151">        throw new ResponseStatusException(</span>
                 HttpStatus.NOT_FOUND, &quot;entity not found&quot;
         );
     }
 
     @GetMapping(path = &quot;authors/{id}/books&quot;)
-    public ArrayList&lt;Book&gt; getAuthorBooks(@PathVariable(&quot;id&quot;) Long id){
-<span class="nc" id="L139">        return (ArrayList&lt;Book&gt;) bookService.getAuthorBooks(id);</span>
+    public List&lt;BookDTO&gt; getAuthorBooks(@PathVariable(&quot;id&quot;) Long id) {
+<span class="fc" id="L158">        List&lt;Book&gt; authorBooks = bookService.getAuthorBooks(id);</span>
+<span class="fc" id="L159">        return authorBooks.stream()</span>
+<span class="fc" id="L160">                .map(book -&gt; new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor())))</span>
+<span class="fc" id="L161">                .collect(Collectors.toList());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

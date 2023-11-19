@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Library</a> &gt; <a href="index.source.html" class="el_package">com.library.Library.services.Impl</a> &gt; <span class="el_source">BookServiceImpl.java</span></div><h1>BookServiceImpl.java</h1><pre class="source lang-java linenums">package com.library.Library.services.Impl;
 
 import com.library.Library.persistence.models.Book;
-import com.library.Library.persistence.repositories.IBookRepository;
+import com.library.Library.persistence.repositories.BookRepository;
 import com.library.Library.services.IBookService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BookServiceImpl implements IBookService {
+<span class="nc" id="L17">public class BookServiceImpl implements IBookService {</span>
 
   @Autowired
-  private IBookRepository bookRepository;
+  private BookRepository bookRepository;
 
   @Override
   public Optional&lt;Book&gt; findById(Long id) {
-<span class="nc" id="L22">    return bookRepository.findById(id);</span>
+<span class="nc" id="L24">    return bookRepository.findById(id);</span>
   }
 
   @Override
   public Book save(Book book) {
-<span class="nc" id="L27">    return bookRepository.save(book);</span>
+<span class="nc" id="L29">    return bookRepository.save(book);</span>
   }
 
 
   @Override
   public List&lt;Book&gt; getAllBooks() {
     // TODO Auto-generated method stub
-<span class="nc" id="L34">    return bookRepository.getAllBooks();</span>
+<span class="nc" id="L36">    return bookRepository.findAll();</span>
   }
 
   @Override
   public void deleteBook(Long id) {
-    // TODO Auto-generated method stub
-<span class="nc" id="L40">    bookRepository.deleteBook(id);</span>
-<span class="nc" id="L41">  }</span>
+<span class="nc" id="L41">    Optional&lt;Book&gt; bookOptional = bookRepository.findById(id);</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (bookOptional.isPresent()) {</span>
+<span class="nc" id="L44">      Book book = bookOptional.get();</span>
+<span class="nc" id="L45">      bookRepository.delete(book);</span>
+<span class="nc" id="L46">    } else {</span>
+      // Manejar el caso cuando el libro no existe
+<span class="nc" id="L48">      throw new EntityNotFoundException(&quot;Book with id &quot; + id + &quot; not found&quot;);</span>
+    }
+<span class="nc" id="L50">  }</span>
 
   @Override
-  public List&lt;Book&gt; getAuthorBooks(Long id) {
-<span class="nc" id="L45">    return bookRepository.getAuthorBooks(id);</span>
+  public List&lt;Book&gt; getAuthorBooks(Long authorId) {
+<span class="nc" id="L54">    return bookRepository.findByAuthorId(authorId);</span>
   }
-
-  @Autowired
-  public void setProjectRepository(IBookRepository bookRepository) {
-<span class="nc" id="L50">    this.bookRepository = bookRepository;</span>
-<span class="nc" id="L51">  }</span>
-
-<span class="nc" id="L53">  public BookServiceImpl(IBookRepository bookRepository) {</span>
-<span class="nc" id="L54">    this.bookRepository = bookRepository;</span>
-<span class="nc" id="L55">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
