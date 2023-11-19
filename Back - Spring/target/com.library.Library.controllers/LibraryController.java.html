@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LibraryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Library</a> &gt; <a href="index.source.html" class="el_package">com.library.Library.controllers</a> &gt; <span class="el_source">LibraryController.java</span></div><h1>LibraryController.java</h1><pre class="source lang-java linenums">package com.library.Library.controllers;
+
+import com.library.Library.persistence.models.Author;
+import com.library.Library.persistence.models.Book;
+import com.library.Library.services.Impl.AuthorServiceImpl;
+import com.library.Library.services.Impl.BookServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+@RestController
+@RequestMapping(&quot;/&quot;)
+<span class="fc" id="L17">public class LibraryController {</span>
+
+    @Autowired
+    private BookServiceImpl bookService;
+
+    @Autowired
+    private AuthorServiceImpl authorService;
+
+    @GetMapping(path = &quot;books&quot;)
+    public ArrayList&lt;Book&gt; getAllBooks(){
+<span class="nc" id="L27">        return (ArrayList&lt;Book&gt;) bookService.getAllBooks();</span>
+    }
+
+    @PostMapping(path = &quot;books&quot;)
+    public String createBook( @RequestBody Book newBook){
+
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        if(newBook.getAuthor() != null){</span>
+<span class="fc" id="L34">            Optional&lt;Author&gt; auxAuthor = authorService.findById(newBook.getAuthor().getId());</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            if(auxAuthor.isPresent()) {</span>
+<span class="fc" id="L36">                newBook.setAuthor(auxAuthor.get());</span>
+<span class="fc" id="L37">                bookService.save(newBook);</span>
+<span class="fc" id="L38">                return &quot;Book created&quot;;</span>
+            }
+        }
+
+
+<span class="fc" id="L43">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;Author does not exist&quot;
+        );
+
+    }
+
+    @GetMapping(path = &quot;books/{id}&quot;)
+    public Book getBookById(@PathVariable(&quot;id&quot;) Long id){
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if(bookService.findById(id).isPresent()) {</span>
+<span class="nc" id="L52">            return bookService.findById(id).get();</span>
+        }
+<span class="nc" id="L54">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;entity not found&quot;
+        );
+    }
+
+    @PutMapping(path = &quot;books/{id}&quot;)
+    public String updateBookById(@RequestBody Book newBook, @PathVariable(&quot;id&quot;) Long id){
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if(newBook.getAuthor() != null) {</span>
+<span class="nc" id="L62">            Optional&lt;Author&gt; auxAuthor = authorService.findById(newBook.getAuthor().getId());</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (bookService.findById(id).isPresent() &amp;&amp; auxAuthor.isPresent()) {</span>
+<span class="nc" id="L64">                Book book = bookService.findById(id).get();</span>
+<span class="nc" id="L65">                book.setAuthor(auxAuthor.get());</span>
+<span class="nc" id="L66">                book.setTitle(newBook.getTitle());</span>
+
+<span class="nc" id="L68">                bookService.save(book);</span>
+
+<span class="nc" id="L70">                return &quot;Book modified&quot;;</span>
+            }
+        }
+<span class="nc" id="L73">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;entity not found&quot;
+        );
+    }
+
+    @DeleteMapping(path = &quot;books/{id}&quot;)
+    public String deleteBookById(@PathVariable(&quot;id&quot;) Long id){
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if(bookService.findById(id).isPresent()) {</span>
+<span class="nc" id="L81">            bookService.deleteBook(id);</span>
+<span class="nc" id="L82">            return &quot;Book deleted&quot;;</span>
+        }
+<span class="nc" id="L84">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;entity not found&quot;
+        );
+    }
+
+    //--------------Author methods ----------------
+    @GetMapping(path = &quot;authors&quot;)
+    public ArrayList&lt;Author&gt; getAllAuthors(){
+<span class="nc" id="L92">        return (ArrayList&lt;Author&gt;) authorService.getAllAuthors();</span>
+    }
+
+    @PostMapping(path = &quot;authors&quot;)
+    public String createAuthor( @RequestBody Author newAuthor){
+<span class="nc" id="L97">        authorService.save(newAuthor);</span>
+<span class="nc" id="L98">        return &quot;Author created&quot;;</span>
+    }
+
+    @GetMapping(path = &quot;authors/{id}&quot;)
+    public Author getAuthorById(@PathVariable(&quot;id&quot;) Long id){
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if(authorService.findById(id).isPresent()) {</span>
+<span class="nc" id="L104">            return authorService.findById(id).get();</span>
+        }
+<span class="nc" id="L106">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;entity not found&quot;
+        );
+    }
+
+    @PutMapping(path = &quot;authors/{id}&quot;)
+    public String updateAuthorById(@RequestBody Author newAuthor, @PathVariable(&quot;id&quot;) Long id){
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if(authorService.findById(id).isPresent()) {</span>
+<span class="nc" id="L114">            Author author = authorService.findById(id).get();</span>
+<span class="nc" id="L115">            author.setName(newAuthor.getName());</span>
+<span class="nc" id="L116">            author.setNationality(newAuthor.getNationality());</span>
+
+<span class="nc" id="L118">            this.authorService.save(author);</span>
+<span class="nc" id="L119">            return &quot;Author modified&quot;;</span>
+        }
+<span class="nc" id="L121">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;entity not found&quot;
+        );
+    }
+
+    @DeleteMapping(path = &quot;authors/{id}&quot;)
+    public String deleteAuthorById(@PathVariable(&quot;id&quot;) Long id){
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if(authorService.findById(id).isPresent()) {</span>
+<span class="nc" id="L129">            authorService.deleteAuthor(id);</span>
+<span class="nc" id="L130">            return &quot;Author deleted&quot;;</span>
+        }
+<span class="nc" id="L132">        throw new ResponseStatusException(</span>
+                HttpStatus.NOT_FOUND, &quot;entity not found&quot;
+        );
+    }
+
+    @GetMapping(path = &quot;authors/{id}/books&quot;)
+    public ArrayList&lt;Book&gt; getAuthorBooks(@PathVariable(&quot;id&quot;) Long id){
+<span class="nc" id="L139">        return (ArrayList&lt;Book&gt;) bookService.getAuthorBooks(id);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
