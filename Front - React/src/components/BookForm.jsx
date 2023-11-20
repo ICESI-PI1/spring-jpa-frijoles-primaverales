@@ -9,6 +9,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
+  const [publised, setPublished] = useState("");
 
   useEffect(() => {
     if (bookEdit) {

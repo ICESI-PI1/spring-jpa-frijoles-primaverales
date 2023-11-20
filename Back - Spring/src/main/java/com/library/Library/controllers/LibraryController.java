@@ -7,6 +7,7 @@ import com.library.Library.services.Impl.AuthorServiceImpl;
 import com.library.Library.services.Impl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,8 +17,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/")
+@Validated
 public class LibraryController {
 
     @Autowired
@@ -103,9 +107,14 @@ public class LibraryController {
     }
 
     @PostMapping(path = "authors")
-    public String createAuthor( @RequestBody Author newAuthor){
-        authorService.save(newAuthor);
-        return "Author created";
+    public String createAuthor(@Valid @RequestBody Author newAuthor){
+        if(!newAuthor.getName().equals("") && !newAuthor.getNationality().equals("")){
+            authorService.save(newAuthor);
+            return "Author created";
+        }
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Fields 'name' and 'nationality' cannot be null"
+        );
     }
 
     @GetMapping(path = "authors/{id}")

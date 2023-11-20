@@ -1,5 +1,6 @@
 package com.library.Library.persistence.models;
 
+import javax.validation.constraints.NotBlank;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,11 @@ public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @NotBlank(message = "El nombre del autor no puede estar en blanco")
     private String name;
+
+    @NotBlank(message = "La nacionalidad del autor no puede estar en blanco")
     private String nationality;
 
 
