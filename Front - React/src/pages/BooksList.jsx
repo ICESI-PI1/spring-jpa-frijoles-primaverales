@@ -12,6 +12,7 @@ function BookList({ owner }) {
     id: "",
     nationality: "",
     author: "",
+    publicationDate: "",
   });
 
   const getBooks = async () => {
@@ -57,7 +58,7 @@ function BookList({ owner }) {
         console.log(e);
       }
     }
-    setBookEdit({ id: "", title: "", author: "" });
+    setBookEdit({ id: "", title: "", author: "", publicationDate: "" });
   };
 
   const delBook = async (id) => {

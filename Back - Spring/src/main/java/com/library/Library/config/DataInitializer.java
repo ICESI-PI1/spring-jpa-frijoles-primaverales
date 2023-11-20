@@ -80,6 +80,9 @@ public class DataInitializer {
         book6.setPublicationDate(parseDate("1998-11-16"));
         book6.setAuthor(author2);
         bookRepository.save(book6);
+
+        System.out.println("********************************MOSTRANDO LIBRO*******************");
+        System.out.println(book6);
         
     }
 

@@ -12,8 +12,6 @@ function AuthorBooksList({}) {
   const getBooks = async () => {
     try {
       const res = await axios.get(`authors/${authorId}/books`);
-      console.log("ahi viene la miel");
-      console.log(res.data);
       setBookList(res.data);
     } catch (e) {
       console.log(e);

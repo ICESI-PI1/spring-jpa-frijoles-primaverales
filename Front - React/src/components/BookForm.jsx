@@ -9,21 +9,29 @@ function BookForm({ authorList, addBook, bookEdit }) {
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [publised, setPublished] = useState("");
+  const [publicationDate, setPublicationDate] = useState("");
 
   useEffect(() => {
     if (bookEdit) {
       setId(bookEdit.id || "");
       setTitle(bookEdit.title || "");
-      setAuthor(bookEdit.author || "");
+      setAuthor(bookEdit.author.id || "");
+
+      const formattedDate = bookEdit.publicationDate
+      ? new Date(bookEdit.publicationDate).toISOString().split('T')[0]
+      : "";
+      console.log(bookEdit.publicationDate);
+      setPublicationDate(formattedDate);
     } else {
       setId("");
       setTitle("");
       setAuthor("");
+      setPublicationDate("");
     }
   }, [bookEdit]);
+
   const handleClick = () => {
-    addBook({ id, title, author });
+    addBook({ id, title, author, publicationDate });
   };
 
   const handleChange = (event) => {
@@ -32,7 +40,9 @@ function BookForm({ authorList, addBook, bookEdit }) {
 
   const renderAuthors = () => {
     return authorList.map((author) => (
-      <MenuItem key={author.id} value={author}>{author.name}</MenuItem>
+      <MenuItem key={author.id} value={author.id}>
+        {author.name}
+      </MenuItem>
     ));
   };
 
@@ -53,15 +63,25 @@ function BookForm({ authorList, addBook, bookEdit }) {
           setTitle(e.target.value);
         }}
       />
+      <InputLabel id="demo-simple-select-label">Author</InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
         value={author}
-        label="Author"
         onChange={handleChange}
+        label="Author"
       >
         {renderAuthors()}
       </Select>
+      <TextField
+        label="Publication Date"
+        variant="standard"
+        type="date"
+        value={publicationDate}
+        onChange={(e) => {
+          setPublicationDate(e.target.value);
+        }}
+      />
       <Button variant="contained" onClick={handleClick}>
         Save
       </Button>
@@ -72,6 +92,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
 BookForm.propTypes = {
   addBook: PropTypes.func,
   bookEdit: PropTypes.object,
+  authorList: PropTypes.array,
 };
 
 export default BookForm;

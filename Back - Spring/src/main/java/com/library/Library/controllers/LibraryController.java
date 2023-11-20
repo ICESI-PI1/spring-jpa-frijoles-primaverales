@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,20 +33,20 @@ public class LibraryController {
     public List<BookDTO> getAllBooks() {
         List<Book> books = bookService.getAllBooks();
         return books.stream()
-                .map(book -> new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor())))
+                .map(book -> new BookDTO(book))
                 .collect(Collectors.toList());
     }
 
     @PostMapping(path = "books")
     public String createBook(@RequestBody BookDTO newBookDTO){
-        if(newBookDTO.getAuthor() != null){
+        if(newBookDTO.getAuthor() != null && !newBookDTO.getTitle().equals("") && newBookDTO.getPublicationDate() != null){
             Optional<Author> auxAuthor = authorService.findById(newBookDTO.getAuthor().getId());
             if(auxAuthor.isPresent()) {
                 Book newBook = new Book();
                 newBook.setId(newBookDTO.getId());
                 newBook.setTitle(newBookDTO.getTitle());
                 newBook.setAuthor(auxAuthor.get());
-                newBook.setPublicationDate(new Date());
+                newBook.setPublicationDate(newBookDTO.getPublicationDate());
 
                 bookService.save(newBook);
                 return "Book created";
@@ -63,7 +62,7 @@ public class LibraryController {
     public BookDTO getBookById(@PathVariable("id") Long id){
         if(bookService.findById(id).isPresent()) {
             Book book = bookService.findById(id).get();
-            return new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor()));
+            return new BookDTO(book);
         }
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "entity not found"
@@ -72,7 +71,7 @@ public class LibraryController {
 
     @PutMapping(path = "books/{id}")
     public String updateBookById(@RequestBody BookDTO newBookDTO, @PathVariable("id") Long id){
-        if(newBookDTO.getAuthor() != null) {
+        if(newBookDTO.getAuthor() != null && !newBookDTO.getTitle().equals("") && newBookDTO.getPublicationDate() != null) {
             Optional<Author> auxAuthor = authorService.findById(newBookDTO.getAuthor().getId());
             if (bookService.findById(id).isPresent() && auxAuthor.isPresent()) {
                 Book book = bookService.findById(id).get();
@@ -166,7 +165,7 @@ public class LibraryController {
     public List<BookDTO> getAuthorBooks(@PathVariable("id") Long id) {
         List<Book> authorBooks = bookService.getAuthorBooks(id);
         return authorBooks.stream()
-                .map(book -> new BookDTO(book.getId(), book.getTitle(), new Author(book.getAuthor())))
+                .map(book -> new BookDTO(book.getId(), book.getTitle(), book.getPublicationDate()))
                 .collect(Collectors.toList());
     }
 }

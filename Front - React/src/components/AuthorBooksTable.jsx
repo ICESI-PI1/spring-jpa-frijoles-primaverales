@@ -10,6 +10,14 @@ import {
   import PropTypes from "prop-types";
   
   function AuthorBooksTable({ bookList }) {
+
+    const formatDate = (dateString) => {
+      const options = { year: "numeric", month: "numeric", day: "numeric" };
+      const formattedDate = new Intl.DateTimeFormat("en-US", options).format(new Date(dateString));
+      
+      return formattedDate.replace(/\//g, '-');
+    };
+
     const renderBook = () => {
         if (!bookList) {
             // lanzar mensaje de alerta 
@@ -22,7 +30,7 @@ import {
             >
             <TableCell align="right">{book.id}</TableCell>
             <TableCell align="left">{book.title}</TableCell>
-            <TableCell align="left">{book.author.name}</TableCell>
+            <TableCell align="left">{formatDate(book.publicationDate)}</TableCell>
             </TableRow>
         ));
     };
@@ -33,7 +41,7 @@ import {
             <TableRow>
               <TableCell align="right"><b>Id</b></TableCell>
               <TableCell align="left"><b>Title</b></TableCell>
-              <TableCell align="left"><b>Author</b></TableCell>
+              <TableCell align="left"><b>Published</b></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{renderBook()}</TableBody>
