@@ -35,14 +35,12 @@ function BookForm({ authorList, addBook, bookEdit, setBookEdit }) {
   }, [bookEdit]);
 
   const handleClick = () => {
-
-
     if (!title || !authorId || !publicationDate) {
       alert("Todos los campos son obligatorios. Por favor, completa la información.");
-      return; // Detener el proceso si hay campos vacíos
+      return;
     }
 
-    // Verificar si la fecha es mayor que la actual
+  
     const currentDate = new Date().toISOString().split('T')[0];
     if (publicationDate > currentDate) {
       alert("La fecha de publicación no puede ser mayor que la fecha actual.");
@@ -51,10 +49,9 @@ function BookForm({ authorList, addBook, bookEdit, setBookEdit }) {
       setAuthor("");
       setPublicationDate("");
       setAuthorId("");
-      return; // Detener el proceso si la fecha es inválida
+      return; 
     }
   
-    // Resto de tu lógica para guardar el libro
     addBook({ id, title, author, publicationDate });
   };
 
@@ -137,6 +134,7 @@ BookForm.propTypes = {
   addBook: PropTypes.func,
   bookEdit: PropTypes.object,
   authorList: PropTypes.array,
+  setBookEdit: PropTypes.func,
 };
 
 export default BookForm;

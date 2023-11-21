@@ -81,8 +81,8 @@ public class DataInitializer {
         book6.setAuthor(author2);
         bookRepository.save(book6);
 
-        System.out.println("********************************MOSTRANDO LIBRO*******************");
-        System.out.println(book6);
+        System.out.println("********************************DATA LOADED SUCCESSFULLY********************************");
+
         
     }
 
