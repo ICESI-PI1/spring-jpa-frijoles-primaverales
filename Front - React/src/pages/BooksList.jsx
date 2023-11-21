@@ -42,6 +42,7 @@ function BookList({ owner }) {
   }, []);
 
   const addBook = async (book) => {
+    console.log(book);
     if (book.id == "") {
       book.id = Math.floor(Math.random() * 100000);
       try {

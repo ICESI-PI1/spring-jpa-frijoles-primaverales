@@ -15,13 +15,14 @@ function BookForm({ authorList, addBook, bookEdit }) {
     if (bookEdit) {
       setId(bookEdit.id || "");
       setTitle(bookEdit.title || "");
-      setAuthor(bookEdit.author.id || "");
+      setAuthor(bookEdit.author || "");
 
       const formattedDate = bookEdit.publicationDate
       ? new Date(bookEdit.publicationDate).toISOString().split('T')[0]
       : "";
       console.log(bookEdit.publicationDate);
       setPublicationDate(formattedDate);
+
     } else {
       setId("");
       setTitle("");
@@ -40,7 +41,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
 
   const renderAuthors = () => {
     return authorList.map((author) => (
-      <MenuItem key={author.id} value={author.id}>
+      <MenuItem key={author.id} value={author}>
         {author.name}
       </MenuItem>
     ));
