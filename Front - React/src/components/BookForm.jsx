@@ -9,6 +9,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
+  const [authorId, setAuthorId] = useState("");
   const [publicationDate, setPublicationDate] = useState("");
 
   useEffect(() => {
@@ -16,6 +17,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
       setId(bookEdit.id || "");
       setTitle(bookEdit.title || "");
       setAuthor(bookEdit.author || "");
+      setAuthorId(bookEdit.author.id || "");
 
       const formattedDate = bookEdit.publicationDate
       ? new Date(bookEdit.publicationDate).toISOString().split('T')[0]
@@ -28,6 +30,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
       setTitle("");
       setAuthor("");
       setPublicationDate("");
+      setAuthorId("");
     }
   }, [bookEdit]);
 
@@ -41,7 +44,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
 
   const renderAuthors = () => {
     return authorList.map((author) => (
-      <MenuItem key={author.id} value={author}>
+      <MenuItem key={author.id} value={author.id}>
         {author.name}
       </MenuItem>
     ));
@@ -68,7 +71,7 @@ function BookForm({ authorList, addBook, bookEdit }) {
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
-        value={author}
+        value={authorId}
         onChange={handleChange}
         label="Author"
       >
