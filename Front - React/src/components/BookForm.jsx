@@ -5,7 +5,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function BookForm({ authorList, addBook, bookEdit }) {
+function BookForm({ authorList, addBook, bookEdit, setBookEdit }) {
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -35,7 +35,36 @@ function BookForm({ authorList, addBook, bookEdit }) {
   }, [bookEdit]);
 
   const handleClick = () => {
+
+
+    if (!title || !authorId || !publicationDate) {
+      alert("Todos los campos son obligatorios. Por favor, completa la información.");
+      return; // Detener el proceso si hay campos vacíos
+    }
+
+    // Verificar si la fecha es mayor que la actual
+    const currentDate = new Date().toISOString().split('T')[0];
+    if (publicationDate > currentDate) {
+      alert("La fecha de publicación no puede ser mayor que la fecha actual.");
+      setId("");
+      setTitle("");
+      setAuthor("");
+      setPublicationDate("");
+      setAuthorId("");
+      return; // Detener el proceso si la fecha es inválida
+    }
+  
+    // Resto de tu lógica para guardar el libro
     addBook({ id, title, author, publicationDate });
+  };
+
+  const handleClear = () => {
+    setId("");
+    setTitle("");
+    setAuthor("");
+    setPublicationDate("");
+    setAuthorId("");
+    setBookEdit(null);
   };
 
   const handleChange = (event) => {
@@ -89,6 +118,14 @@ function BookForm({ authorList, addBook, bookEdit }) {
           setPublicationDate(e.target.value);
         }}
       />
+      <Button variant="contained" onClick={handleClear}
+      sx={{ backgroundColor: '#FFD700', color: '#2E2E2E', '&:hover': {
+        backgroundColor: '#FFA500',
+        color: "#FFFFFF"
+      },}}
+      >
+        Clear
+      </Button>
       <Button variant="contained" onClick={handleClick}>
         Save
       </Button>

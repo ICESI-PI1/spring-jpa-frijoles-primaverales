@@ -74,7 +74,7 @@ function BookList({ owner }) {
   return (
     <BookContext.Provider value={{ bookEdit, setBookEdit }}>
       BookList
-      <BookForm authorList={authorList} addBook={addBook} bookEdit={bookEdit} />
+      <BookForm authorList={authorList} addBook={addBook} bookEdit={bookEdit} setBookEdit={setBookEdit} />
       <BookTable bookList={bookList} delBook={delBook} editBook={setBookEdit} />
     </BookContext.Provider>
   );
