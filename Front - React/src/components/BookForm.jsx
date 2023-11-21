@@ -39,7 +39,10 @@ function BookForm({ authorList, addBook, bookEdit }) {
   };
 
   const handleChange = (event) => {
-    setAuthor(event.target.value);
+    const selectedAuthorId = event.target.value;
+    setAuthorId(selectedAuthorId);
+    const selectedAuthor = authorList.find(author => author.id === selectedAuthorId);
+    setAuthor(selectedAuthor);
   };
 
   const renderAuthors = () => {
