@@ -56,7 +56,7 @@ public class LibraryApplicationTest {
     @Test
     void createBook() {
         // Datos de prueba
-        BookDTO newBookDTO = new BookDTO(1L, "Book Title", new Author(1L, "Author Name", "Author Nationality"));
+        BookDTO newBookDTO = new BookDTO(1L, "Book Title", new Author(1L, "Author Name", "Author Nationality"), new Date());
         Author auxAuthor = new Author(1L, "Author Name", "Author Nationality");
 
         // Define el comportamiento esperado del servicio mock
@@ -71,7 +71,7 @@ public class LibraryApplicationTest {
     @Test
     void createBookAuthorNotFound() {
         // Datos de prueba con autor no encontrado
-        BookDTO newBookDTO = new BookDTO(1L, "Book Title", new Author(1L, "Author Name", "Author Nationality"));
+        BookDTO newBookDTO = new BookDTO(1L, "Book Title", new Author(1L, "Author Name", "Author Nationality"), new Date());
 
         // Define el comportamiento esperado del servicio mock
         when(authorService.findById(newBookDTO.getAuthor().getId())).thenReturn(Optional.empty());
@@ -120,7 +120,7 @@ public class LibraryApplicationTest {
     void updateBookById() {
         // Datos de prueba
         Long bookId = 1L;
-        BookDTO newBookDTO = new BookDTO(bookId, "Updated Book Title", new Author(1L, "Author Name", "Author Nationality"));
+        BookDTO newBookDTO = new BookDTO(bookId, "Updated Book Title", new Author(1L, "Author Name", "Author Nationality"), new Date());
         Author auxAuthor = new Author(1L, "Author Name", "Author Nationality");
         Book mockBook = new Book(bookId, "Original Book Title", new Date(), auxAuthor);
 
@@ -138,7 +138,7 @@ public class LibraryApplicationTest {
     void updateBookByIdNotFound() {
         // Datos de prueba con libro o autor no encontrado
         Long bookId = 1L;
-        BookDTO newBookDTO = new BookDTO(bookId, "Updated Book Title", new Author(1L, "Author Name", "Author Nationality"));
+        BookDTO newBookDTO = new BookDTO(bookId, "Updated Book Title", new Author(1L, "Author Name", "Author Nationality"), new Date());
 
         // Define el comportamiento esperado del servicio mock
         when(authorService.findById(newBookDTO.getAuthor().getId())).thenReturn(Optional.empty());
